@@ -59,6 +59,8 @@ namespace AssetBundles
             {
                 BuildPipeline.BuildAssetBundles(outputPath, builds, options, EditorUserBuildSettings.activeBuildTarget);
             }
+
+            EditorUtility.RevealInFinder(outputPath);
         }
 
         public static void WriteServerURL()
@@ -175,8 +177,8 @@ namespace AssetBundles
                 case BuildTarget.StandaloneOSXIntel64:
                 case BuildTarget.StandaloneOSX:
                     return "/test.app";
-                case BuildTarget.WebPlayer:
-                case BuildTarget.WebPlayerStreamed:
+                //case BuildTarget.WebPlayer:
+                //case BuildTarget.WebPlayerStreamed:
                 case BuildTarget.WebGL:
                 case BuildTarget.iOS:
                     return "";
