@@ -24,5 +24,10 @@ public class EquipmentSetup : MonoBehaviour
     [Tooltip("Custom sound FX when activated.")]
     public AudioClip[] replacementsound;
 
+    [Tooltip("Misc information. Example: tall, wide, or onedir for fighter bays")]
+    public string miscinfo;
+
+    [Tooltip("Hide the body of the component, useful for weapons that come directly from the ship, thus no turret.")]
+    public bool hidebody = false;
 
 }

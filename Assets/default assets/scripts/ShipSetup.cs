@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using UnityEditor;
 using UnityEngine;
 
 public class ShipSetup : MonoBehaviour {
@@ -14,20 +15,15 @@ public class ShipSetup : MonoBehaviour {
     [Tooltip("Description text about this ship.")]
     public string shipBio;
 
-    [Tooltip("Value used to judge how powerful this ship is. Example smallest ship = 100, battleship = 1000")]
-    public int powerValue = 500;
-
-    [Tooltip("Resource cost to buy the ship.")]
-    public int cost = 30000;
-
     [Tooltip("Max scanning range in meters.")]
     public float scanRange = 10000;
 
     [Tooltip("Distance to target to begin firing or use abilties in meters.")]
     public float weapRange = 8000;
 
-    [Tooltip("Preferred engagement range relative to weapon range, (0)close = 25% weaprange, (1)medium = 50%, (2)far = 100%.")]
-    public int range = 1;
+    [Tooltip("Preferred engagement range relative to weapon range, close = 25% weaprange, medium = 50%, far = 100%.")]
+    public prefrange range = prefrange.close;
+    public enum prefrange { close = 0, medium = 1, far = 2 }
 
     [Tooltip("Distance beyond scan range to show unknown blip. Can be negative for within scan range but still unknown.")]
     public float signature = 1000;
@@ -35,8 +31,9 @@ public class ShipSetup : MonoBehaviour {
     [Tooltip("Size of the ship in meters, order is: width, height, length.")]
     public Vector3 size;
 
-    [Tooltip("Arc setting to keep the target within, (0)front0 = always face enemy, (1)front90, (2)front180, (3)front270, (4)frontback90, (5)leftright90, (6)full360 = target can be anywhere.")]
-    public int weaponArc = 3;
+    [Tooltip("Degrees for the ship to keep the target within, front0 = always face enemy, front90 = target 90degress in front, front180, front270, frontback90, leftright90 = 90d left or right, full360 = target can be anywhere.")]
+    public weaponarc weaponArc = weaponarc.front90;
+    public enum weaponarc {front0 = 0, front90 = 1, front180 = 2, front270 = 3, frontback90 = 4, leftright90 = 5, full360 = 6 }
 
     [Tooltip("Max speed per second in meters.")]
     public float maxSpeed = 125;
@@ -79,4 +76,49 @@ public class ShipSetup : MonoBehaviour {
     [Tooltip("Link/point to the equipment slot and weapons container object.")]
     public GameObject weaponsetup;
 
+    [Tooltip("Size of the bridge cabin to load.")]    
+    public bridgesize bridgeSize;
+    public enum bridgesize { small = 0, medium = 1, large = 2}
+    public GameObject customBridgeSetup;
+
+
+    public void AutoPopulate() {
+        float hppervol = 0.06f;
+        float shieldpervol = 0.14f;
+        float speedpervol = 0.125f;
+        float accelerationpervol = 0.001f;
+        float turnpervol = 0.009f;
+
+        //get vol
+        float volume = size.x * size.y * size.z;
+        float scaledvol = volume / 1000f;
+
+        //set stats based on scaled vol
+        hitPoints = hppervol * scaledvol;
+
+        float totalshields = shieldpervol * scaledvol;
+        maxleft = totalshields / 4;
+        maxright = totalshields / 4;
+        maxfront = totalshields / 4;
+        maxback = totalshields / 4;
+
+        maxSpeed = 250 * (speedpervol * scaledvol);
+        accelleration = accelleration * scaledvol;
+        maxTurn = turnpervol * scaledvol;
+    }
+
 }
+
+#if UNITY_EDITOR
+[CustomEditor(typeof(ShipSetup), true)]
+public class AutoCalcStats : Editor {
+    public override void OnInspectorGUI() {
+        base.OnInspectorGUI();
+        ShipSetup thisscript = (ShipSetup)target;
+        /*if (GUILayout.Button("Auto Calc Stats Based on Volume")) {
+            thisscript.AutoPopulate();
+            Debug.Log("stats populated based on volumn");
+        }*/
+    }
+}
+#endif

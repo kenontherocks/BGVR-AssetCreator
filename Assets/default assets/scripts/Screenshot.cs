@@ -45,6 +45,7 @@ public class Screenshot : MonoBehaviour
 [CustomEditor(typeof(Screenshot))]
 class Screenshotbtns : Editor {
     public override void OnInspectorGUI() {
+        base.OnInspectorGUI();
         Screenshot thisscript = (Screenshot)target;
         if (GUILayout.Button("Auto Position")) {
             thisscript.AutoPosition();
