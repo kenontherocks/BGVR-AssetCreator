@@ -81,6 +81,8 @@ public class ShipSetup : MonoBehaviour {
     public enum bridgesize { small = 0, medium = 1, large = 2}
     public GameObject customBridgeSetup;
 
+    [Tooltip("Enter your STEAMID to bind this asset to your account, only this STEAM account can upload to workshop. Use AUTOSIGN button to generate.")]
+    public ulong bindSteamid;
 
     public void AutoPopulate() {
         float hppervol = 0.06f;
@@ -107,6 +109,32 @@ public class ShipSetup : MonoBehaviour {
         maxTurn = turnpervol * scaledvol;
     }
 
+
+    public void AutoSign() {
+        bool connected = false;
+        if (!Steamworks.SteamClient.IsValid) {
+            try {
+                //starting up steam
+                Debug.Log("connecting to steam...");
+                Steamworks.SteamClient.Init(1178780);
+                connected = true;
+            } catch (System.Exception e) {
+                // Something went wrong
+                Debug.LogError("Could not connect to STEAM, are you signed in? "+e);
+            }
+        } else {
+            connected = true;
+        }
+
+        if (connected) {
+            string steamname = Steamworks.SteamClient.Name;
+            ulong steamid = Steamworks.SteamClient.SteamId;
+            bindSteamid = steamid;
+            Debug.Log($"Ship bound to {steamid} ({steamname})"); // Your SteamId
+        }
+
+    }
+
 }
 
 #if UNITY_EDITOR
@@ -115,6 +143,11 @@ public class AutoCalcStats : Editor {
     public override void OnInspectorGUI() {
         base.OnInspectorGUI();
         ShipSetup thisscript = (ShipSetup)target;
+
+        if (GUILayout.Button("AUTOSIGN")) {
+            thisscript.AutoSign();
+        }
+
         /*if (GUILayout.Button("Auto Calc Stats Based on Volume")) {
             thisscript.AutoPopulate();
             Debug.Log("stats populated based on volumn");
